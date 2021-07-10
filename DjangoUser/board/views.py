@@ -1,3 +1,4 @@
+from datetime import time
 import board
 from account.models import User
 from django.utils import timezone
@@ -5,6 +6,12 @@ from board.models import Board
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import *
 # Create your views here.
+
+# Board 기능 
+
+def home(request) : 
+    boards = Board.objects.all()
+    return render(request, 'home.html' , {'boards' : boards})
 
 def create(request) : 
     # 글을 작성할 경우 POST 방식으로 들어가 아래의 코드 실행. 
@@ -46,6 +53,28 @@ def delete(request, id) :
     delete_board.delete()
     return redirect('home')
 
-def home(request) : 
-    boards = Board.objects.all()
-    return render(request, 'home.html' , {'boards' : boards})
+# Commnet 기능 
+
+def create_comment (request, board_id) : 
+    if request.method == "POST" :
+        new_comment = Comment()
+        # 어떤 게시글에 올라가는지. 
+        new_comment.board = get_object_or_404(Board, pk = board_id)
+        # 유저 가져오기 
+        user_id = request.user.id
+        user = User.objects.get(id = user_id)
+        new_comment.writer = user
+        # 내용 저장 
+        new_comment.content = request.POST['content']
+        # 작성 시간 저장 
+        new_comment.date = timezone.datetime.now()
+        # db 에 댓글 객체 저장 
+        new_comment.save()
+        return redirect('detail', board_id)
+
+def delete_comment (request, board_id, comment_id) :
+     this_comment = Comment.objects.get(pk = comment_id)
+     this_comment.delete()
+     return redirect('detail', board_id)
+
+    

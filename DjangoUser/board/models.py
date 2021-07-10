@@ -1,6 +1,5 @@
 from django.contrib.admin import autodiscover
 from django.db import models
-from django.utils import timezone
 # Create your models here.
 
 class Board(models.Model) : 
@@ -11,3 +10,13 @@ class Board(models.Model) :
 
     def __str__(self) : 
         return self.title
+
+class Comment(models.Model) : 
+    board = models.ForeignKey(Board, on_delete = models.CASCADE)
+    writer = models.ForeignKey('account.User', on_delete = models.CASCADE)
+    date = models.DateTimeField()
+    content = models.TextField()
+
+    def __str__(self) : 
+        return self.content
+    
